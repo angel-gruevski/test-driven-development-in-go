@@ -29,7 +29,7 @@ func TestDivide(t *testing.T) {
 	for name, rtc := range tests {
 		tc := rtc
 		t.Run(name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 			x, y := int8(tc.x), int8(tc.y)
 			r, err := table.Divide(x, y)
 			if tc.wantErr != nil {
