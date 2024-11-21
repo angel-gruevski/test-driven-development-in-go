@@ -12,12 +12,12 @@ import (
 const expressionLength = 3
 
 type Parser struct {
-	engine    *calculator.Engine
-	validator *Validator
+	engine    calculator.OperationProcessor
+	validator ValidationHelper
 }
 
 // NewParser creates a ready to user parser.
-func NewParser(op *calculator.Engine, v *Validator) *Parser {
+func NewParser(op calculator.OperationProcessor, v ValidationHelper) *Parser {
 	return &Parser{
 		engine:    op,
 		validator: v,
@@ -37,17 +37,16 @@ func (p *Parser) getOperation(expr string) (*calculator.Operation, error) {
 	ops := strings.Fields(expr)
 
 	if len(ops) != expressionLength {
-		return nil, fmt.Errorf("incorrect expression length:got %d, want %d",
-			len(ops), expressionLength)
+		return nil, fmt.Errorf("incorrect expression length:got %d, want %d", len(ops), expressionLength)
 	}
 
 	leftOp, err := strconv.ParseFloat(ops[0], 64)
 	if err != nil {
-		return nil, fmt.Errorf("unable to process expression:%v", err)
+		return nil, fmt.Errorf("unable to process expression")
 	}
 	rightOp, err := strconv.ParseFloat(ops[2], 64)
 	if err != nil {
-		return nil, fmt.Errorf("unable to process expression:%v", err)
+		return nil, fmt.Errorf("unable to process expression")
 	}
 
 	operator := ops[1]

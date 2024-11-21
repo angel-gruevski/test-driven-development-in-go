@@ -14,6 +14,11 @@ func NewValidator(expectedLength int, validOps []string) *Validator {
 	}
 }
 
+// ValidationHelper to help us mock Validator
+type ValidationHelper interface {
+	CheckInput(operator string, operands []float64) error
+}
+
 func (v *Validator) CheckInput(operator string, operands []float64) error {
 	operandsLength := len(operands)
 	if operandsLength != v.expectedLength {

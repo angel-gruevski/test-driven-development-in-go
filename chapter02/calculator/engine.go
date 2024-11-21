@@ -16,15 +16,18 @@ type Operation struct {
 
 type Engine struct {
 	expectedLength  int
-	validOperations map[string]func(x, y float64) float64
+	validOperations map[string]func(x, y float64) (*float64, error)
 }
 
 func NewEngine() *Engine {
 	engine := Engine{
 		expectedLength:  2,
-		validOperations: make(map[string]func(x float64, y float64) float64),
+		validOperations: make(map[string]func(x, y float64) (*float64, error)),
 	}
 	engine.validOperations["+"] = engine.Add
+	engine.validOperations["-"] = engine.Sub
+	engine.validOperations["*"] = engine.Mult
+	engine.validOperations["/"] = engine.Div
 	return &engine
 }
 
@@ -43,8 +46,35 @@ func (e *Engine) GetValidOperators() []string {
 }
 
 // Add is the function that processes the addition operation
-func (e *Engine) Add(x, y float64) float64 {
-	return x + y
+func (e *Engine) Add(x, y float64) (*float64, error) {
+	result := x + y
+	return &result, nil
+}
+
+// Sub is the function that processes the subtract operation
+func (e *Engine) Sub(x, y float64) (*float64, error) {
+	result := x - y
+	return &result, nil
+}
+
+// Sub is the function that processes the subtract operation
+func (e *Engine) Mult(x, y float64) (*float64, error) {
+	result := x * y
+	return &result, nil
+}
+
+// Div is the function that processes the divide operation
+func (e *Engine) Div(x, y float64) (*float64, error) {
+	if y == 0 {
+		return nil, fmt.Errorf("cannot divide by zero")
+	}
+	result := x / y
+	return &result, nil
+}
+
+// Interface to allow mocking the Engine struct
+type OperationProcessor interface {
+	ProcessOperation(operation Operation) (*string, error)
 }
 
 func (e *Engine) ProcessOperation(operation Operation) (*string, error) {
@@ -54,7 +84,17 @@ func (e *Engine) ProcessOperation(operation Operation) (*string, error) {
 		err := fmt.Errorf("no operation for operator %s found", operation.Operator)
 		return nil, format.Error(operation.Expression, err)
 	}
-	res := f(operation.Operands[0], operation.Operands[1])
-	fres := format.Result(operation.Expression, res)
+
+	operandsLength := len(operation.Operands)
+	if operandsLength != e.GetNumOperands() {
+		err := fmt.Errorf("incorrect number of operands")
+		return nil, format.Error(operation.Expression, err)
+	}
+
+	res, err := f(operation.Operands[0], operation.Operands[1])
+	if err != nil {
+		return nil, format.Error(operation.Expression, err)
+	}
+	fres := format.Result(operation.Expression, *res)
 	return &fres, nil
 }
