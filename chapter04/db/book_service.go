@@ -84,5 +84,6 @@ func (bs *BookService) SwapBook(bookID, userID string) (*Book, error) {
 	}
 	book.Status = Swapped.String()
 	book.OwnerID = userID
+	bs.books[bookID] = book
 	return &book, nil
 }

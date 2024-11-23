@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -44,6 +45,7 @@ func (us *UserService) Get(id string) (*User, []Book, error) {
 		return nil, nil, errors.New("user does not exist")
 	}
 	books := us.bs.ListByUser(id)
+	fmt.Println(len(books))
 
 	return &u, books, nil
 }
@@ -51,6 +53,7 @@ func (us *UserService) Get(id string) (*User, []Book, error) {
 // Exists returns whether a given user exists and returns an error if none found.
 func (us *UserService) Exists(id string) error {
 	if _, ok := us.users[id]; !ok {
+		fmt.Printf("DOESN:T EXIST")
 		return errors.New("no user found")
 	}
 	return nil
